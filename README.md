@@ -36,7 +36,7 @@ https://www.tinymind.com/ai100/quiz-word-recog
 
 - dataset_name quiz  # 数据集的名称，这里使用我们为本次作业专门做的quiz数据集
 - dataset_dir /data/ai100/quiz-word  # tfrecord存放的目录，这个目录是建立模型的时候，由tinymind提供的
-- checkpoint_path /data/ai100/inception-V3-ckpt/inception_V3.ckpt  # InceptionV3的预训练模型存放的位置，这个文件以数据集的形式使用，路径由tinymind提供。
+- checkpoint_path /data/ai100/inception-v3-ckpt/inception_v3.ckpt  # InceptionV3的预训练模型存放的位置，这个文件以数据集的形式使用，路径由tinymind提供。
 - model_name inception_V3  # 使用的网络的名称，本作业固定为inception_V3
 - checkpoint_exclude_scopes InceptionV3/Logits,InceptionV3/AuxLogits  # 加载预训练模型的时候需要排除的变量scope，这两个是跟最后的分类器有关的变量scope。
 - train_dir /output/ckpt  # 训练目录，训练的中间文件和summary，checkpoint等都存放在这里，这个目录也是验证过程的checkpoint_path参数， 这个目录由tinymind提供，需要注意这个目录是需要写入的，使用其他目录可能会出现写入失败的情况。
@@ -45,6 +45,7 @@ https://www.tinymind.com/ai100/quiz-word-recog
 - dataset_split_name validation # 数据集分块名，用于验证过程，传入train可验证train集准确度，传入validation可验证validation集准确度，这里只关注validation
 - eval_dir /output/eval  # 验证目录，验证结果，包括summary等，会写入这个目录
 - max_num_batches 128  # 验证batches，这里会验证128×32共4096个图片样本的数据。
+- batche_size 32
 
 鼓励参与课程的学员尝试不同的参数组合以体验不同的参数对训练准确率和收敛速度的影响。
 
@@ -71,16 +72,11 @@ https://www.tinymind.com/ai100/quiz-word-recog
 学员自己实现一个densenet的网络，并插入到slim框架中进行训练。
 
 ### 数据集
-同作业1
+同必做作业
 
 ### 模型
 模型代码来自：
 https://github.com/tensorflow/models/tree/master/research/slim
-
-
-这里为了适应本作业提供的数据集，稍作修改，添加了一个quiz数据集以及一个训练并验证的脚本，实际使用的代码为：
-https://gitee.com/ai100/quiz-w7-code.git
-
 
 其中nets目录下的densenet.py中已经定义了densenet网络的入口函数等，相应的辅助代码也都已经完成，学员只需要check或者fork这里的代码，添加自己的densenet实现并在tinymind上建立相应的模型即可。
 
