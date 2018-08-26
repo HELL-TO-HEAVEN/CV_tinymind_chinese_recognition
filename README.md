@@ -4,40 +4,41 @@ http://edu.csdn.net/lecturer/1427
 
 # TinymMind上GPU运行费用较贵，每 CPU 每小时 $0.09，每 GPU 每小时 $0.99，所有作业内容推荐先在本地运行出一定的结果，保证运行正确之后，再上传到TinyMind上运行。初始运行推荐使用CPU运行资源，待所有代码确保没有问题之后，再启动GPU运行。
 
-TinyMind上Tensorflow已经有1.4的版本，能比1.3的版本快一点，推荐使用。
+## 必做作业1
+利用slim框架，做一个InceptionV3的迁移训练
 
-## 作业1
-利用slim框架，做一个inceptionv4的迁移训练
 ### 数据集
-本数据集拥有200个分类，每个分类300张图片，共计6W张图片，其中5W张作为训练集，1W张图片作为验证集。图片已经预打包为tfrecord格式并上传到tinymind上。地址如下：
-https://www.tinymind.com/ai100/datasets/quiz-w7
+
+参考Tinymind汉字识别竞赛说明
+https://www.tinymind.cn/competitions/41
+
+本作业需要train数据集和自由练习赛部分数据。
 
 
 ### 预训练模型
-迁移训练需要一个预训练的模型作为checkpoint输入。作业使用的网络是inception_v4,所以这里我们使用tensorflow提供的预训练的inception_v4模型作为输入。文件已经预先上传到tinymind上，地址如下：
-https://www.tinymind.com/ai100/datasets/inception-v4-ckpt
+迁移训练需要一个预训练的模型作为checkpoint输入。作业使用的网络是inception_V3,所以这里我们使用tensorflow提供的预训练的inception_V3模型作为输入。
+
 
 ### 模型
 模型代码来自：
 https://github.com/tensorflow/models/tree/master/research/slim
 
 这里为了适应本作业提供的数据集，稍作修改，添加了一个quiz数据集以及一个训练并验证的脚本，实际使用的代码为：
-https://gitee.com/ai100/quiz-w7-code.git
-
+https://gitee.com/ai100/quiz-word-recog
 
 在tinymind上新建一个模型，模型设置参考如下模型：
 
-https://www.tinymind.com/ai100/quiz-w7-1
+https://www.tinymind.com/ai100/quiz-word-recog
 
 复制模型后可以看到模型的全部参数。
 
 模型参数的解释：
 
 - dataset_name quiz  # 数据集的名称，这里使用我们为本次作业专门做的quiz数据集
-- dataset_dir /data/ai100/quiz-w7  # tfrecord存放的目录，这个目录是建立模型的时候，由tinymind提供的
-- checkpoint_path /data/ai100/inception-v4-ckpt/inception_v4.ckpt  # inceptionv4的预训练模型存放的位置，这个文件以数据集的形式使用，路径由tinymind提供。
-- model_name inception_v4  # 使用的网络的名称，本作业固定为inception_v4
-- checkpoint_exclude_scopes InceptionV4/Logits,InceptionV4/AuxLogits/Aux_logits  # 加载预训练模型的时候需要排除的变量scope，这两个是跟最后的分类器有关的变量scope。
+- dataset_dir /data/ai100/quiz-word  # tfrecord存放的目录，这个目录是建立模型的时候，由tinymind提供的
+- checkpoint_path /data/ai100/inception-V3-ckpt/inception_V3.ckpt  # InceptionV3的预训练模型存放的位置，这个文件以数据集的形式使用，路径由tinymind提供。
+- model_name inception_V3  # 使用的网络的名称，本作业固定为inception_V3
+- checkpoint_exclude_scopes InceptionV3/Logits,InceptionV3/AuxLogits  # 加载预训练模型的时候需要排除的变量scope，这两个是跟最后的分类器有关的变量scope。
 - train_dir /output/ckpt  # 训练目录，训练的中间文件和summary，checkpoint等都存放在这里，这个目录也是验证过程的checkpoint_path参数， 这个目录由tinymind提供，需要注意这个目录是需要写入的，使用其他目录可能会出现写入失败的情况。
 - learning_rate 0.001  # 学习率, 较大的学习率会加快训练速度，但是也会导致模型不稳定或者无法收敛。
 - optimizer rmsprop  # 优化器，关于优化器的区别请参考[这里](https://arxiv.org/abs/1609.04747)
@@ -56,19 +57,16 @@ https://www.tinymind.com/ai100/quiz-w7-1
 2017-12-1 23:03:04.327097: I tensorflow/core/kernels/logging_ops.cc:79] eval/Recall_5[0.494873047]
 ```
 
-经过5个以上epoch的训练（TinyMind上6个小时左右）的训练，Top1（Accuracy）应不低于60%， Top5（Recall）应不低于70%。这两个指标将会作为作业及格60分的标准。
+在TinyMind汉字书法识别自由练习赛上面，以学员名字拼音作为队伍名称，提交自己的成绩并截图放到作业中。30 分
 
-准确率达到Top1（Accuracy）不低于80%， Top5（Recall）不低于90%为90分。
+文档描述中需提供对训练流程的描述，心得体会等，内容，30分。
 
-文档描述中需提供对训练流程的描述，心得体会等，内容，10分。
-
-**作业评判准确率要求必须在作业提供的数据集上得到，非作业提供的数据集得到的准确率不做考虑**
 
 >这里使用的数据和模型及相关参数，已经过课程相关人员评估。
 >epoch计算方式：
 >epoch = step * batch_size / count_all_train_pics
 
-## 作业2
+## 进阶选做作业
 
 学员自己实现一个densenet的网络，并插入到slim框架中进行训练。
 
@@ -90,11 +88,6 @@ https://gitee.com/ai100/quiz-w7-code.git
 densenet论文参考 https://arxiv.org/abs/1608.06993
 
 
-在tinymind上新建一个模型，模型设置参考如下模型：
-
-https://www.tinymind.com/ai100/quiz-w7-2-densenet
-
-
 模型参数的解释同1，不同的地方：
 
 - checkpoint_path # 因为没有预训练的模型，这里不使用这个参数
@@ -105,11 +98,13 @@ https://www.tinymind.com/ai100/quiz-w7-2-densenet
 鼓励参与课程的学员尝试不同的参数组合以体验不同的参数对训练准确率和收敛速度的影响。
 
 ### 结果评估
-densenet的网络，效果要略好于inceptionv4。考虑到实现的不同，而且没有预训练模型，这里不对准确率做要求。只要训练运行成功并有准确率输出即可认为及格60分。
+总分 40分
 
-提供对densenet实现过程的描述：
-对growth的理解 20分
-对稠密链接的理解 20分
+densenet的网络，效果要略好于InceptionV3。只要训练运行成功并有准确率输出即可认为20分。
+
+提供对densenet实现过程的描述，20分：
+对growth的理解 10分
+对稠密链接的理解 10分
 
 
 # 参考内容
@@ -118,16 +113,16 @@ densenet的网络，效果要略好于inceptionv4。考虑到实现的不同，�
 作业1
 ```sh
 训练：
-python3 train_image_classifier.py --dataset_name=quiz --dataset_dir=/path/to/data --checkpoint_path=/path/to/inception_v4.ckpt --model_name=inception_v4 --checkpoint_exclude_scopes=InceptionV4/Logits,InceptionV4/AuxLogits/Aux_logits --train_dir=/path/to/train_ckpt --learning_rate=0.001 --optimizer=rmsprop  --batch_size=32
+python3 train_image_classifier.py --dataset_name=quiz --dataset_dir=/path/to/data --checkpoint_path=/path/to/inception_V3.ckpt --model_name=inception_V3 --checkpoint_exclude_scopes=InceptionV3/Logits,InceptionV3/AuxLogits/Aux_logits --train_dir=/path/to/train_ckpt --learning_rate=0.001 --optimizer=rmsprop  --batch_size=32
 
 train集验证：
-python3 eval_image_classifier.py --dataset_name=quiz --dataset_dir=/path/to/data --dataset_split_name=train --model_name=inception_v4 --checkpoint_path=/path/to/train_ckpt --eval_dir=/path/to/train_eval --batch_size=32 --max_num_batches=128
+python3 eval_image_classifier.py --dataset_name=quiz --dataset_dir=/path/to/data --dataset_split_name=train --model_name=inception_V3 --checkpoint_path=/path/to/train_ckpt --eval_dir=/path/to/train_eval --batch_size=32 --max_num_batches=128
 
 validation集验证：
-python3 eval_image_classifier.py --dataset_name=quiz --dataset_dir=/path/to/data --dataset_split_name=validation --model_name=inception_v4 --checkpoint_path=/path/to/train_ckpt --eval_dir=/path/to/validation_eval --batch_size=32 --max_num_batches=128
+python3 eval_image_classifier.py --dataset_name=quiz --dataset_dir=/path/to/data --dataset_split_name=validation --model_name=inception_V3 --checkpoint_path=/path/to/train_ckpt --eval_dir=/path/to/validation_eval --batch_size=32 --max_num_batches=128
 
 统一脚本：
-python3 train_eval_image_classifier.py --dataset_name=quiz --dataset_dir=/path/to/data --checkpoint_path=/path/to/inception_v4.ckpt --model_name=inception_v4 --checkpoint_exclude_scopes=InceptionV4/Logits,InceptionV4/AuxLogits/Aux_logits --optimizer=rmsprop --train_dir=/path/to/log/train_ckpt --learning_rate=0.001 --dataset_split_name=validation --eval_dir=/path/to/eval --max_num_batches=128
+python3 train_eval_image_classifier.py --dataset_name=quiz --dataset_dir=/path/to/data --checkpoint_path=/path/to/inception_V3.ckpt --model_name=inception_V3 --checkpoint_exclude_scopes=InceptionV3/Logits,InceptionV3/AuxLogits/Aux_logits --optimizer=rmsprop --train_dir=/path/to/log/train_ckpt --learning_rate=0.001 --dataset_split_name=validation --eval_dir=/path/to/eval --max_num_batches=128
 ```
 
 作业2
@@ -142,7 +137,7 @@ validation集验证：
 python3 eval_image_classifier.py --dataset_name=quiz --dataset_dir=/path/to/data --dataset_split_name=validation --model_name=densenet --checkpoint_path=/path/to/train_ckpt_den --eval_dir=/path/to/validation_eval_den --batch_size=32 --max_num_batches=128
 
 统一脚本：
-python3 train_eval_image_classifier.py --dataset_name=quiz --dataset_dir=/path/to/data --model_name=densenet --checkpoint_exclude_scopes=InceptionV4/Logits,InceptionV4/AuxLogits/Aux_logits --train_dir=/path/to/log/train_ckpt --learning_rate=0.1 --dataset_split_name=validation --eval_dir=/path/to/eval_den --max_num_batches=128
+python3 train_eval_image_classifier.py --dataset_name=quiz --dataset_dir=/path/to/data --model_name=densenet --checkpoint_exclude_scopes=InceptionV3/Logits,InceptionV3/AuxLogits/Aux_logits --train_dir=/path/to/log/train_ckpt --learning_rate=0.1 --dataset_split_name=validation --eval_dir=/path/to/eval_den --max_num_batches=128
 ```
 
 ## cpu训练
