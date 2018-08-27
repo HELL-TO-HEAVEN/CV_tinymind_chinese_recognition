@@ -61,6 +61,7 @@ import tensorflow as tf
 from tensorflow.python.platform import gfile
 from datasets import dataset_factory
 from nets import nets_factory
+from preprocessing import preprocessing_factory
 
 
 slim = tf.contrib.slim
@@ -100,25 +101,35 @@ FLAGS = tf.app.flags.FLAGS
 
 
 def main(_):
-  if not FLAGS.output_file:
-    raise ValueError('You must supply the path to save to with --output_file')
-  tf.logging.set_verbosity(tf.logging.INFO)
-  with tf.Graph().as_default() as graph:
-    dataset = dataset_factory.get_dataset(FLAGS.dataset_name, 'train',
-                                          FLAGS.dataset_dir)
-    network_fn = nets_factory.get_network_fn(
-        FLAGS.model_name,
-        num_classes=(dataset.num_classes - FLAGS.labels_offset),
-        is_training=FLAGS.is_training)
-    image_size = FLAGS.image_size or network_fn.default_image_size
-    placeholder = tf.placeholder(name='input', dtype=tf.float32,
-                                 shape=[FLAGS.batch_size, image_size,
-                                        image_size, 3])
-    network_fn(placeholder)
-    graph_def = graph.as_graph_def()
-    with gfile.GFile(FLAGS.output_file, 'wb') as f:
-      f.write(graph_def.SerializeToString())
+    if not FLAGS.output_file:
+        raise ValueError(
+            'You must supply the path to save to with --output_file')
+    tf.logging.set_verbosity(tf.logging.INFO)
+    with tf.Graph().as_default() as graph:
+        dataset = dataset_factory.get_dataset(FLAGS.dataset_name, 'train',
+                                              FLAGS.dataset_dir)
+        image_preprocessing_fn = preprocessing_factory.get_preprocessing(
+            FLAGS.model_name,
+            is_training=FLAGS.is_training)
+        network_fn = nets_factory.get_network_fn(
+            FLAGS.model_name,
+            num_classes=(dataset.num_classes - FLAGS.labels_offset),
+            is_training=FLAGS.is_training)
+        image_size = FLAGS.image_size or network_fn.default_image_size
+        placeholder = tf.placeholder(name='input', dtype=tf.string)
+
+        input_image = tf.image.decode_jpeg(placeholder, channels=3)
+        input_image = image_preprocessing_fn(input_image,
+                                             image_size,
+                                             image_size)
+        input_image = tf.expand_dims(input_image, axis=0)
+        logits, _ = network_fn(input_image)
+        output = tf.squeeze(logits, name='output')
+        final_probs = tf.nn.softmax(output, name='final_probs')
+        graph_def = graph.as_graph_def()
+        with gfile.GFile(FLAGS.output_file, 'wb') as f:
+            f.write(graph_def.SerializeToString())
 
 
 if __name__ == '__main__':
-  tf.app.run()
+    tf.app.run()
